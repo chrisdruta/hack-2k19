@@ -1,0 +1,1 @@
+{"pillCount": 50, "pillConfigs": [{"name": "config 1", "red": 1, "blue": 1}, {"name": "config 2", "red": 2, "blue": 2}], "defaultPillConfig": 0, "pillLog": [{"date": 1547911784.269783, "pills": {"red": 2, "blue": 0}}, {"date": 1547911784.269829, "pills": {"red": 5, "blue": 10}}], "reminders": [{"msg": "insert message here", "time": "time?"}]}
