@@ -1,7 +1,8 @@
-welcome: Welcome to memory game. I'm going to say three numbers for you to repeat backwards. Ready?
+get_name: Welcome to Daily Dispense! What is your name?
 
-round: Can you repeat the numbers {{ numbers|join(", ") }} backwards?
+welcome_user: Hello {{ username }}! What can I help you with today?
+user_not_found: Hmm. I do not see a {{ username }} in my database. Try again.
 
-win: Good job!
-
-lose: Sorry, that's the wrong answer.
+runs_dispense: Here you go! Have a great day.
+no_face: I can't see you. Try again.
+dont_dispense: Okay! Have a great day.
