@@ -6,9 +6,12 @@ from flask_ask import Ask, statement
 import datetime
 import json
 import os
+import logging
 
 app = Flask(__name__)
 ask = Ask(app, '/')
+
+logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 
 # File IO functions, cuz fuck databases
 def load():
@@ -31,6 +34,28 @@ def save(data):
     except:
         raise RuntimeError("Failed to write data file")
 
+@ask.launch
+def new_game():
+    welcome_msg = render_template('welcome')
+    return question(welcome_msg)
+
+@ask.intent("YesIntent")
+def next_round():
+    numbers = [randint(0, 9) for _ in range(3)]
+    round_msg = render_template('round', numbers=numbers)
+    session.attributes['numbers'] = numbers[::-1]  # reverse
+    return question(round_msg)
+
+@ask.intent("AnswerIntent", convert={'first': int, 'second': int, 'third': int})
+def answer(first, second, third):
+    winning_numbers = session.attributes['numbers']
+    if [first, second, third] == winning_numbers:
+        msg = render_template('win')
+    else:
+        msg = render_template('lose')
+    return statement(msg)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def endpoint():
     return jsonify({'hello': "world"})
@@ -51,12 +76,7 @@ def addReminder():
     save(data)
 
     # Tell alexa what to say back
-
-@ask.intent('HelloIntent')
-def hello(firstname):
-    text = render_template('hello', firstname=firstname)
-    return statement(text).simple_card('Hello', text)
-       
+  
 # Example user
 user = {
     'pillCount': 50,
