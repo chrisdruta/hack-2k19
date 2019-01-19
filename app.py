@@ -51,6 +51,11 @@ def addReminder():
     save(data)
 
     # Tell alexa what to say back
+
+@ask.intent('HelloIntent')
+def hello(firstname):
+    text = render_template('hello', firstname=firstname)
+    return statement(text).simple_card('Hello', text)
        
 # Example user
 user = {
