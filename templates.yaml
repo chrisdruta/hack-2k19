@@ -1,4 +1,5 @@
 get_name: Welcome to Daily Dispense! What is your name?
+need_name: I didnt catch your name, what was it?
 
 welcome_user: Hello {{ username }}! What can I help you with today?
 user_not_found: Hmm. I do not see a {{ username }} in my database. Try again.
