@@ -16,4 +16,8 @@ dont_dispense_blue: You are at the limit for blue medication! What else can I he
 user_has_taken_prescrip: Yes, {{ username }} has taken their prescription! What else can I help you with?
 user_has_not_taken_prescrip: No, {{ username }} has not taken their prescription! What else can I help you with?
 
+user_has_taken: User named {{ username }} has taken {{ totalPills }} {{ color }} pills. What else can I help you with?
+
+who_made: made money off the Iraq war.
+
 no_intent: Alright! Have a great day.

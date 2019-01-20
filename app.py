@@ -204,6 +204,44 @@ def has_user_taken(username):
     client.username = orginal
     return question(msg)
 
+#ask: how many BLANK pills has user taken
+@ask.intent("how_many_taken")
+def how_many_taken(color,username):
+    orginal = client.username
+    if orginal:
+        client.username = None
+        response = client.send_post('account', {'username': username})
+        userFound = response['success']
+        if userFound:
+            client.username = username
+
+            requestTime = datetime.now()
+
+            # iterate through logs to find number of pills taken
+            response = client.send_get('logs')
+            pillsT = 0
+            for medicationLog in response['logs']:
+                logTime = dateutil.parser.parse(medicationLog['time'])
+                diffTime = (requestTime - logTime).days
+                if diffTime < 1:
+                    pillsT += medicationLog[color]
+            
+            totalPills = str(pillsT)
+            
+            msg = render_template('user_has_taken', color=color, username=username, totalPills=totalPills)
+           
+        else:
+            msg = render_template('user_not_found', username=username)            
+    else:
+        msg = render_template('need_name')
+    client.username = orginal
+    return question(msg)
+
+@ask.intent('joke_boi')
+def joke():
+    msg = render_template('who_made')
+    return question(msg)
+
 #ask: user says no
 @ask.intent("no_intent")
 def user_no():
