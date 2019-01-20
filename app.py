@@ -56,21 +56,21 @@ def run_dispense():
         if prescriptionTaken:
             msg = render_template('taken_prescrip')
         else:
-            #PUT WHILE LOOP HERE
-            msg = render_template('not_taken_prescrip')
             response = client.send_get('prescription')
             redP = response['red']
             blueP = response['blue']
+            print("dispensing")
+            disp = dispenser()
+            disp.dispense(1, redP)
+            disp.dispense(2, blueP)
+            #PUT WHILE LOOP HERE
+            msg = render_template('not_taken_prescrip')
             client.send_post('logs',{
                 'red':redP,
                 'blue':blueP,
                 'time':stringifyDate(requestTime),
                 'isPrescription':True
             })
-            print("dispensing")
-            disp = dispenser()
-            disp.dispense(1, redP)
-            disp.dispense(2, blueP)
     else:
         msg = render_template('need_name')
     return question(msg)
@@ -94,19 +94,18 @@ def needs_red_pills():
         redP = response['red']
 
         if redT < redP + 2:
-            # INSERT WHILE LOOP HERE
             redD = 1
+            print("dispensing")
+            disp = dispenser()
+            disp.dispense(1,redD)
+            # INSERT WHILE LOOP HERE
             msg = render_template('dispense_red')
             client.send_post('logs',{
                 'red':redD,
                 'blue':0,
                 'time':stringifyDate(requestTime),
                 'isPrescription':False
-            })
-            print("dispense")
-            disp = dispenser()
-            disp.dispense(1,redD)
-            
+            })            
         else:
             msg = render_template('dont_dispense_red')
     else:
@@ -132,19 +131,18 @@ def needs_blue_pills():
         blueP = response['blue']
 
         if blueT < blueP + 2:
-            # INSERT WHILE LOOP HERE
             blueD = 1
+            print("dispensing")
+            disp = dispenser()
+            disp.dispense(2,blueD)
+            # INSERT WHILE LOOP HERE
             msg = render_template('dispense_blue')
             client.send_post('logs',{
                 'red':0,
                 'blue':blueD,
                 'time':stringifyDate(requestTime),
                 'isPrescription':False
-            })
-            print("dispense")
-            disp = dispenser()
-            disp.dispense(2,blueD)
-            
+            })       
         else:
             msg = render_template('dont_dispense_blue')
     else:
