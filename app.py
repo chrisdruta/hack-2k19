@@ -106,8 +106,42 @@ def run_dispense():
             msg = render_template('taken_prescrip')
         else:
             msg = render_template('not_taken_prescrip')
-            # RUN DISPENSING FUNCTION BRO
-    return question(msg)   
+            # FUNCTION TO UPDATE LOG
+            # RUN DISPENSING FUNCTION
+    return question(msg)
+
+#ask: user hurts red
+@ask.intent("user_needs_pills")
+def needs_pills():
+    requestTime = datetime.now()
+
+    # iterate through logs to find number of pills taken
+    response = client.send_get('pills/logs')
+    redT = 0
+    for medicationLog in response['logs']:
+        logTime = dateutil.parser.parse(medicationLog['date'])
+        diffTime = (requestTime - logTime).days
+        if diffTime < 1:
+            redT += medicationLog['red']
+    
+    response = client.send_get('prescription/red')
+    redP = response['red']
+
+    if redT < redP + 2:
+        redD = 1
+        msg = render_template('dispense_red')
+        # FUNCTION TO UPDATE LOG
+        # DISPENSE RED PILL
+    else:
+        msg = render_template('dont_dispense_red')
+
+    return question(msg)
+
+#ask: user says no
+@ask.intent("no_intent")
+def user_no():
+    msg = render_template('no_intent')
+    return statement(msg)
 
 if __name__ == '__main__':
     app.run(debug=True)
