@@ -1,15 +1,19 @@
 from flask import Flask, render_template
 from flask_ask import Ask, statement, question, session
-# from PillDispense import dispenser
+from sonic import dispenser
 from api_client import APIClient
 import dateutil.parser
 from datetime import datetime, timedelta
 
+
 app = Flask(__name__)
 ask = Ask(app, "/")
 
-baseUrl = "34.218.74.17:5000"
+baseUrl = "http://34.218.74.17:5000"
 client = APIClient(baseUrl)
+
+def stringifyDate(date):
+    return date.isoformat()
 
 # ask: opens on launch of app
 @ask.launch
@@ -52,8 +56,9 @@ def run_dispense():
             if prescription:
                 logTime = dateutil.parser.parse(medicationLog['time'])
                 diffTime = (requestTime - logTime).days
-                if diffTime >= 1:
-                    prescriptionTaken = False
+                if diffTime <= 1:
+                    print(diffTime)
+                    prescriptionTaken = True
                             
         if prescriptionTaken:
             msg = render_template('taken_prescrip')
@@ -65,10 +70,13 @@ def run_dispense():
             client.send_post('logs',{
                 'red':redP,
                 'blue':blueP,
-                'time':requestTime,
+                'time':stringifyDate(requestTime),
                 'isPrescription':True
             })
             print("dispensing")
+            disp = dispenser()
+            disp.dispense(1, redP)
+            disp.dispense(2, blueP)
     else:
         msg = render_template('need_name')
     return question(msg)
@@ -83,7 +91,7 @@ def needs_pills():
         response = client.send_get('logs')
         redT = 0
         for medicationLog in response['logs']:
-            logTime = dateutil.parser.parse(medicationLog['date'])
+            logTime = dateutil.parser.parse(medicationLog['time'])
             diffTime = (requestTime - logTime).days
             if diffTime < 1:
                 redT += medicationLog['red']
@@ -97,10 +105,13 @@ def needs_pills():
             client.send_post('logs',{
                 'red':redD,
                 'blue':0,
-                'time':requestTime,
+                'time':stringifyDate(requestTime),
                 'isPrescription':False
             })
             print("dispense")
+            disp = dispenser()
+            disp.dispense(1,redD)
+            
         else:
             msg = render_template('dont_dispense_red')
     else:
