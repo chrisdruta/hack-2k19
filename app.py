@@ -34,10 +34,10 @@ def welcome_user(username):
         response = client.send_post('account', {'username': username})
         userFound = response['success']
         if userFound:
-            msg = render_template('welcome_user')
+            msg = render_template('welcome_user', username=username)
             client.username = username
         else:
-            msg = render_template('user_not_found')
+            msg = render_template('user_not_found', username=username)
     else:
         msg = render_template('face_not_found')
     return question(msg)
@@ -123,6 +123,10 @@ def needs_pills():
 def user_no():
     msg = render_template('no_intent')
     return statement(msg)
+
+@ask.session_ended
+def session_ended():
+    return "{}", 200
 
 if __name__ == '__main__':
     app.run(debug=True)
