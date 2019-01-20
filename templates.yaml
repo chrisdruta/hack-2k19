@@ -1,11 +1,11 @@
 get_name: Welcome to Pill Bot! What is your name?
-need_name: I didnt catch your name, what was it?
+need_name: I did not catch your name, what was it?
 
 welcome_user: Hello {{ username }}! What can I help you with today?
 user_not_found: Hmm. I do not see a {{ username }} in my database. Try again.
 
 taken_prescrip: You have already taken your prescription for the day. What else can I help you with?
-not_taken_prescrip: You have not taken your prescription for the day. Dispensed! What else can I help you with?
+not_taken_prescrip: Here is your prescription! What else can I help you with?
 
 dispense_red: Here is some red medication! What else can I help you with?
 dont_dispense_red: You are at the limit for red medication! What else can I help you with?

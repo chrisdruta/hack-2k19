@@ -4,7 +4,8 @@ from sonic import dispenser
 from api_client import APIClient
 import dateutil.parser
 from datetime import datetime, timedelta
-
+from sonic import handsensor
+import time
 
 app = Flask(__name__)
 ask = Ask(app, "/")
@@ -64,6 +65,12 @@ def run_dispense():
             disp.dispense(1, redP)
             disp.dispense(2, blueP)
             #PUT WHILE LOOP HERE
+            usonic = handsensor()
+            while True:
+                status = usonic.checkProx(10)
+                time.sleep(.1)
+                if status == True:
+                   break
             msg = render_template('not_taken_prescrip')
             client.send_post('logs',{
                 'red':redP,
@@ -99,6 +106,12 @@ def needs_red_pills():
             disp = dispenser()
             disp.dispense(1,redD)
             # INSERT WHILE LOOP HERE
+            usonic = handsensor()
+            while True:
+                status = usonic.checkProx(10)
+                time.sleep(.1)
+                if status == True:
+                   break
             msg = render_template('dispense_red')
             client.send_post('logs',{
                 'red':redD,
@@ -136,6 +149,12 @@ def needs_blue_pills():
             disp = dispenser()
             disp.dispense(2,blueD)
             # INSERT WHILE LOOP HERE
+            usonic = handsensor()
+            while True:
+                status = usonic.checkProx(10)
+                time.sleep(.1)
+                if status == True:
+                   break
             msg = render_template('dispense_blue')
             client.send_post('logs',{
                 'red':0,
@@ -166,18 +185,18 @@ def has_user_taken(username):
             # iterate through logs to find if perscrition taken
             response = client.send_get('logs')
             for medicationLog in response['logs']:
-            prescription = medicationLog['isPrescription']
-            if prescription:
-                logTime = dateutil.parser.parse(medicationLog['time'])
-                diffTime = (requestTime - logTime).days
-                if diffTime <= 1:
-                    print(diffTime)
-                    prescriptionTaken = True
+                prescription = medicationLog['isPrescription']
+                if prescription:
+                    logTime = dateutil.parser.parse(medicationLog['time'])
+                    diffTime = (requestTime - logTime).days
+                    if diffTime <= 1:
+                        print(diffTime)
+                        prescriptionTaken = True
 
             if prescriptionTaken:
-                msg = render_template('user_has_taken_prescrip')
+                msg = render_template('user_has_taken_prescrip', username=username)
             else:
-                msg = render_template('user_has_not_taken_prescrip')
+                msg = render_template('user_has_not_taken_prescrip', username=username)
         else:
             msg = render_template('user_not_found', username=username)
     else:
