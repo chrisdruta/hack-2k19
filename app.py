@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 ask = Ask(app, "/")
 
-baseUrl = "insert aws ip here"
+baseUrl = "34.218.74.17:5000"
 client = APIClient(baseUrl)
 
 # ask: opens on launch of app
