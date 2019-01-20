@@ -38,7 +38,7 @@ class APIClient:
 				),
 				'ascii'
 			).strip()
-			request.add_header('Authorization', auth)
+			request.add_header('x-auth', auth)
 		request.add_header('Content-Type', 'application/json')
 
 		e = None

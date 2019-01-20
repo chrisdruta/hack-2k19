@@ -5,13 +5,15 @@ from PillDispense import dispenser
 from api_client import APIClient
 import dateutil.parser
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 ask = Ask(app, "/")
 
 baseUrl = "insert aws ip here"
 client = APIClient(baseUrl)
+
+userFound = False
 
 # @scott api client example
 # response is a dictionary containing the data you want with arbitrary keys.
@@ -43,9 +45,9 @@ client.send_post('pills/logs', {
     }
 })
 
-# Get specific perscription
-response = client.send_get('perscription/red')
-redPerscriptionCount = response['red']
+# Get specific prescription
+response = client.send_get('prescription/red')
+redPrescriptionCount = response['red']
 
 # Still need to plan prescriptions
 client.get_post('prescriptions', {
@@ -58,7 +60,6 @@ client.get_post('prescriptions', {
 # ask: opens on launch of app
 @ask.launch
 def launch_dispense():
-    userFound = False
     msg = render_template('get_name')
     return question(msg)
 
@@ -66,8 +67,9 @@ def launch_dispense():
 @ask.intent("welcome_user")
 def welcome_user(username):
     # check for face
-    cam = face_detect.faceDetector()
-    faceFound = cam.face_scan()
+    # cam = face_detect.faceDetector()
+    # faceFound = cam.face_scan()
+    faceFound = True
     if faceFound:
         # check username exsists
         # client.username = None
@@ -83,49 +85,29 @@ def welcome_user(username):
         msg = render_template('face_not_found')
     return question(msg)
 
-# ask: user wants to take pills
-@ask.intent("can_user_take")
+# ask: user wants to take prescription
+@ask.intent("user_take_prescription")
 def run_dispense():
     if userFound:
-        # get the current count of user's pills
-        response = client.send_get('pills/count/red')
-        redC = response['count']
-        response = client.send_get('pills/count/blue')
-        blueC = response['count']
-        # get the user's perscription
-        response = client.send_get('perscription/red')
-        redP = response['red']
-        response = client.send_get('perscription/blue')
-        blueP = response['blue']
-        
-        if redC >= 5:
-            # red pills to dispense
-            redD = 0
+        prescriptionTaken = False
+        requestTime = datetime.now()
+
+        # iterate through logs to find if perscrition taken
+        response = client.send_get('pills/logs')
+        for medicationLog in response['logs']:
+            prescription = medicationLog['prescription']
+            if prescription:
+                logTime = dateutil.parser.parse(medicationLog['date'])
+                diffTime = (requestTime - logTime).days
+                if diffTime >= 1:
+                    prescriptionTaken = False
+                            
+        if prescriptionTaken:
+            msg = render_template('taken_prescrip')
         else:
-
-            
-            # pills to dispense
-            redD = 
-        if blueC >= blueP:
-            # blue pills to dispense
-            blueD = 0
-        else
-
-
-    
-        # dispense pills
-        disp = dispenser()
-        disp.dispense(1,3)
-        msg = render_template('runs_dispense')
-    else:
-        msg = render_template('no_face')
-    return statement(msg)
-
-@ask.intent("no_open_dispense")
-# Function to run dispesing function when user says yes
-def dont_run_dispense():
-    msg = render_template('dont_dispense')
-    return statement(msg)
+            msg = render_template('not_taken_prescrip')
+            # RUN DISPENSING FUNCTION BRO
+    return question(msg)   
 
 if __name__ == '__main__':
     app.run(debug=True)
