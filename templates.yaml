@@ -1,4 +1,4 @@
-get_name: Welcome to Daily Dispense! What is your name?
+get_name: Welcome to Pill Bot! What is your name?
 need_name: I didnt catch your name, what was it?
 
 welcome_user: Hello {{ username }}! What can I help you with today?
@@ -9,5 +9,8 @@ not_taken_prescrip: You have not taken your prescription for the day. Dispensing
 
 dispense_red: Here is some red medication! What else can I help you with?
 dont_dispense_red: You are at the limit for red medication! What else can I help you with?
+
+dispense_blue: Here is some blue medication! What else can I help you with?
+dont_dispense_blue: You are at the limit for blue medication! What else can I help you with?
 
 no_intent: Alright! Have a great day.

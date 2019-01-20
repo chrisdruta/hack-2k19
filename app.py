@@ -82,8 +82,8 @@ def run_dispense():
     return question(msg)
 
 #ask: user hurts red
-@ask.intent("user_needs_pills")
-def needs_pills():
+@ask.intent("user_needs_pills_red")
+def needs_red_pills():
     if client.username:
         requestTime = datetime.now()
 
@@ -117,6 +117,47 @@ def needs_pills():
     else:
         msg = render_template('need_name')
     return question(msg)
+
+#ask: user hurts blue
+@ask.intent("user_needs_pills_blue")
+def needs_blue_pills():
+    if client.username:
+        requestTime = datetime.now()
+
+        # iterate through logs to find number of pills taken
+        response = client.send_get('logs')
+        blueT = 0
+        for medicationLog in response['logs']:
+            logTime = dateutil.parser.parse(medicationLog['time'])
+            diffTime = (requestTime - logTime).days
+            if diffTime < 1:
+                blueT += medicationLog['blue']
+        
+        response = client.send_get('prescription')
+        blueP = response['blue']
+
+        if blueT < blueP + 2:
+            blueD = 1
+            msg = render_template('dispense_blue')
+            client.send_post('logs',{
+                'red':0,
+                'blue':blueD,
+                'time':stringifyDate(requestTime),
+                'isPrescription':False
+            })
+            print("dispense")
+            disp = dispenser()
+            disp.dispense(2,blueD)
+            
+        else:
+            msg = render_template('dont_dispense_blue')
+    else:
+        msg = render_template('need_name')
+    return question(msg)
+
+#ask: has user taken pills
+@ask.intent("user_needs_pills_blue")
+def needs_blue_pills():
 
 #ask: user says no
 @ask.intent("no_intent")
