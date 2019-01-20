@@ -2,6 +2,9 @@ get_name: Welcome to Daily Dispense! What is your name?
 
 welcome_user: Hello {{ username }}! What can I help you with today?
 user_not_found: Hmm. I do not see a {{ username }} in my database. Try again.
+face_not_found: Excuse me {{ username }}, but I can't see you! Try the last command agan while looking at the camera.
+
+
 
 runs_dispense: Here you go! Have a great day.
 no_face: I can't see you. Try again.

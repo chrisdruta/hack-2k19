@@ -43,40 +43,77 @@ client.send_post('pills/logs', {
     }
 })
 
+# Get specific perscription
+response = client.send_get('perscription/red')
+redPerscriptionCount = response['red']
+
 # Still need to plan prescriptions
-client.get_post('prescription')
+client.get_post('prescriptions', {
+    'pills': {
+        'red': 5,
+        'blue': 5
+    }
+})
 
 # ask: opens on launch of app
 @ask.launch
 def launch_dispense():
+    userFound = False
     msg = render_template('get_name')
     return question(msg)
 
 # ask: welcome user
 @ask.intent("welcome_user")
 def welcome_user(username):
-    # INSERT FUNCTION TO CHECK USER NAME
-    # client.username = None
-    # response = client.send_post('account', {'username': username})
-    # userFound = response['success']
-    userFound = True
-    if userFound:
-        msg = render_template('welcome_user')
-        #client.username = username
-    else:
-        msg = render_template('user_not_found')
-    return question(msg)
-
-
-@ask.intent("yes_open_dispense")
-# Function to run dispesing function when user says yes
-def run_dispense():
     # check for face
     cam = face_detect.faceDetector()
     faceFound = cam.face_scan()
-    
     if faceFound:
-        # INSERT DISPENSE FUNCTION HERE
+        # check username exsists
+        # client.username = None
+        # response = client.send_post('account', {'username': username})
+        # userFound = response['success']
+        userFound = True
+        if userFound:
+            msg = render_template('welcome_user')
+            #client.username = username
+        else:
+            msg = render_template('user_not_found')
+    else:
+        msg = render_template('face_not_found')
+    return question(msg)
+
+# ask: user wants to take pills
+@ask.intent("can_user_take")
+def run_dispense():
+    if userFound:
+        # get the current count of user's pills
+        response = client.send_get('pills/count/red')
+        redC = response['count']
+        response = client.send_get('pills/count/blue')
+        blueC = response['count']
+        # get the user's perscription
+        response = client.send_get('perscription/red')
+        redP = response['red']
+        response = client.send_get('perscription/blue')
+        blueP = response['blue']
+        
+        if redC >= 5:
+            # red pills to dispense
+            redD = 0
+        else:
+
+            
+            # pills to dispense
+            redD = 
+        if blueC >= blueP:
+            # blue pills to dispense
+            blueD = 0
+        else
+
+
+    
+        # dispense pills
         disp = dispenser()
         disp.dispense(1,3)
         msg = render_template('runs_dispense')
