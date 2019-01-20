@@ -24,22 +24,15 @@ def launch_dispense():
 # ask: welcome user
 @ask.intent("welcome_user")
 def welcome_user(username):
-    # check for face
-    # cam = face_detect.faceDetector()
-    # faceFound = cam.face_scan()
-    faceFound = True
-    if faceFound:
-        # check username exsists
-        client.username = None
-        response = client.send_post('account', {'username': username})
-        userFound = response['success']
-        if userFound:
-            msg = render_template('welcome_user', username=username)
-            client.username = username
-        else:
-            msg = render_template('user_not_found', username=username)
+    # check username exsists
+    client.username = None
+    response = client.send_post('account', {'username': username})
+    userFound = response['success']
+    if userFound:
+        msg = render_template('welcome_user', username=username)
+        client.username = username
     else:
-        msg = render_template('face_not_found')
+        msg = render_template('user_not_found', username=username)
     return question(msg)
 
 # ask: user wants to take prescription
@@ -63,6 +56,7 @@ def run_dispense():
         if prescriptionTaken:
             msg = render_template('taken_prescrip')
         else:
+            #PUT WHILE LOOP HERE
             msg = render_template('not_taken_prescrip')
             response = client.send_get('prescription')
             redP = response['red']
@@ -100,6 +94,7 @@ def needs_red_pills():
         redP = response['red']
 
         if redT < redP + 2:
+            # INSERT WHILE LOOP HERE
             redD = 1
             msg = render_template('dispense_red')
             client.send_post('logs',{
@@ -137,6 +132,7 @@ def needs_blue_pills():
         blueP = response['blue']
 
         if blueT < blueP + 2:
+            # INSERT WHILE LOOP HERE
             blueD = 1
             msg = render_template('dispense_blue')
             client.send_post('logs',{
@@ -156,8 +152,40 @@ def needs_blue_pills():
     return question(msg)
 
 #ask: has user taken pills
-@ask.intent("user_needs_pills_blue")
-def needs_blue_pills():
+@ask.intent("has_user_taken")
+def has_user_taken(username):
+    orginal = client.username
+    if orginal:
+        client.username = None
+        response = client.send_post('account', {'username': username})
+        userFound = response['success']
+        if userFound:
+            client.username = username
+
+            prescriptionTaken = False
+            requestTime = datetime.now()
+
+            # iterate through logs to find if perscrition taken
+            response = client.send_get('logs')
+            for medicationLog in response['logs']:
+            prescription = medicationLog['isPrescription']
+            if prescription:
+                logTime = dateutil.parser.parse(medicationLog['time'])
+                diffTime = (requestTime - logTime).days
+                if diffTime <= 1:
+                    print(diffTime)
+                    prescriptionTaken = True
+
+            if prescriptionTaken:
+                msg = render_template('user_has_taken_prescrip')
+            else:
+                msg = render_template('user_has_not_taken_prescrip')
+        else:
+            msg = render_template('user_not_found', username=username)
+    else:
+        msg = render_template('need_name')
+    client.username = orginal
+    return question(msg)
 
 #ask: user says no
 @ask.intent("no_intent")
